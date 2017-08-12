@@ -1,0 +1,44 @@
+//Name : Sooraj Tom, 111501036
+//Date : 07-08-2017
+//Step : 4 
+
+//loading exception handler
+load (7 , 1); 
+load (8 , 2);
+//loading interrupt 7
+load (23, 17); 
+load (24, 18);
+
+//setting PID 0 in ready-list
+[READY_LIST + 0] = 0;  
+
+//loading INIT code
+load (25, 21);
+load (26, 22);
+load (27, 23);
+
+//setting page table base register
+PTBR = 1024;
+PTLR = 4;
+
+//Adding page table entries
+[PTBR + 0] = 25;
+[PTBR + 1] = "01";
+[PTBR + 2] = 26;
+[PTBR + 3] = "01";
+[PTBR + 4] = 27;
+[PTBR + 5] = "01";
+[PTBR + 6] = 28;  //page for Stack
+[PTBR + 7] = "01";
+
+[READY_LIST + 1] = 2; //STATE = running
+
+//set StackPointer to starting of page 3
+SP = 3 * 512; 
+
+//Set IP value on the top of the stack
+[28 * 512] = 0;
+
+//Transferring control to user program
+ireturn;
+

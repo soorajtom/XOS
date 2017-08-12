@@ -1,0 +1,12 @@
+alias counter S0;
+alias n S1;
+print "Enter n:";
+read n;
+counter = 0;
+while(counter <= n) do
+	if(counter%2 != 0) then
+		print counter;
+	endif;
+	breakpoint;
+	counter = counter + 1;
+endwhile;
