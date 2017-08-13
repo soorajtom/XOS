@@ -8,6 +8,9 @@ load (8 , 2);
 //loading interrupt 7
 load (23, 17); 
 load (24, 18);
+//loading timer interrupt
+load (9, 3);
+load (10, 4);
 
 //setting PID 0 in ready-list
 [READY_LIST + 0] = 0;  
