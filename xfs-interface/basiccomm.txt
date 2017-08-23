@@ -1,0 +1,10 @@
+fdisk
+load --os $spldir/os_startup.xsm
+load --int=timer $spldir/timer.xsm
+load --init $apldir/even.xsm
+load --exec $apldir/odd.xsm
+load --exhandler $spldir/exhandler.xsm
+load --int=1 $spldir/int1.xsm
+load --int=7 $spldir/int7.xsm
+exit
+

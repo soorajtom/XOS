@@ -9,7 +9,7 @@ PUSH R0
 MOV R0, 2
 MOV R1, BP
 ADD R0, R1
-MOV R1, 1
+MOV R1, 0
 MOV [R0], R1
 MOV R0, "Enter limit: "
 OUT R0

@@ -1,0 +1,84 @@
+//Name : Sooraj Tom, 111501036
+//Date : 23-08-2017
+//Step : 6 OS Startup code
+
+//////////////////////////Loading Interrupts///////////////////////
+//loading exception handler
+load (7 , 1); 
+load (8 , 2);
+//loading interrupt 1
+load (11, 5);
+load (12, 6);
+//loading interrupt 7
+load (23, 17); 
+load (24, 18);
+//loading timer interrupt
+load (9, 3);
+load (10, 4);
+
+////////////////////////////////Init process/////////////////////////////
+
+//setting PID 0 in ready-list for init program
+[READY_LIST + 0] = 0; 
+
+//loading INIT code
+load (25, 21);
+load (26, 22);
+load (27, 23);
+
+//setting page table base register for Init process
+PTBR = 1024;
+PTLR = 4;
+
+//Adding page table entries for INIT code
+[PTBR + 0] = 25;
+[PTBR + 1] = "01";
+[PTBR + 2] = 26;
+[PTBR + 3] = "01";
+[PTBR + 4] = 27;
+[PTBR + 5] = "01";
+[PTBR + 6] = 28;  //page for Stack
+[PTBR + 7] = "01";
+
+//PCB for INIT process
+[READY_LIST + 1] = 2; //STATE = running
+
+//set StackPointer to starting of page 3
+SP = 3 * 512; 
+
+//Set IP value on the top of the stack
+[28 * 512] = 0;
+
+///////////////////////////////Process1///////////////
+
+//Making an alias for base address of page table for first process
+alias PTBR_Process1 S0;
+PTBR_Process1 = 1024 + 1 * 8; 
+
+//loading the user code
+load (29, 25);
+
+//PCB for Process1 
+//setting PID 1 in  ready-list for next user program
+[READY_LIST + 32] = 1;
+[READY_LIST + 33] = 1; //STATE = ready  (33 = PID * 32 + 1)
+[READY_LIST + 34] = 3 * 512; // Sets the entry for BP in the PCB
+[READY_LIST + 35] = 3 * 512; // Sets the entry for SP in the PCB
+[READY_LIST + 36] = 0; // Sets IP to logical address 0 in the PCB
+[READY_LIST + 37] = PTBR_Process1; // PTBR
+[READY_LIST + 38] = 4; // PTLR
+
+
+//Adding page table entries for Process1
+[PTBR_Process1 + 0] = 29;
+[PTBR_Process1 + 1] = "01";
+[PTBR_Process1 + 2] = -1;
+[PTBR_Process1 + 3] = "00";
+[PTBR_Process1 + 4] = -1;
+[PTBR_Process1 + 5] = "00";
+[PTBR_Process1 + 6] = 30;
+[PTBR_Process1 + 7] = "01";
+
+//Transferring control to INIT program
+ireturn;
+

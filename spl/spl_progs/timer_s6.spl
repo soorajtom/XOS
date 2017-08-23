@@ -1,0 +1,60 @@
+//Name : Sooraj Tom, 111501036
+//Date : 23-08-2017
+//Step : 6 timer interrupt routine
+
+
+/////////////////Saving state of current process to PCB/////
+
+alias currentPID S0;
+currentPID = (PTBR - 1024) / 8; //Getting current running process
+alias currentPCB S1;
+currentPCB = READY_LIST + 32 * currentPID; //PCB of current process
+
+[ currentPCB + 1 ] = 1;      // Set STATE to READY
+[ currentPCB + 2 ] = BP;     // Saving the base pointer
+[ currentPCB + 3 ] = SP - 1; //Saving Stack pointer
+alias physicalSP S2;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+[ currentPCB + 4 ] = [physicalSP]; //Saving current IP value from SP
+[ currentPCB + 5 ] = PTBR;
+[ currentPCB + 6 ] = PTLR ;
+[ currentPCB + 7 ] = R0;
+[ currentPCB + 8 ] = R1;
+[ currentPCB + 9 ] = R2;
+[ currentPCB + 10 ] = R3;
+[ currentPCB + 11 ] = R4;
+[ currentPCB + 12 ] = R5;
+[ currentPCB + 13 ] = R6;
+[ currentPCB + 14 ] = R7;
+
+////////////////Searching for next READY process/////
+
+alias nextPID S3;
+alias nextPCB S4;
+nextPID = currentPID + 1;
+nextPCB = READY_LIST + (((nextPID) % 32) * 32);
+
+while([ nextPCB + 1 ] != 1) do
+	nextPID = (nextPID + 1) % 32;
+	nextPCB = READY_LIST + ((nextPID) * 32);
+endwhile;
+
+///////////////Resuming The READY process///////
+
+[ nextPCB + 1 ] = 2;  //Set STATE Value to RUNNING
+BP =  [ nextPCB + 2 ];
+SP =  [ nextPCB + 3 ] + 1;
+PTBR = [ nextPCB + 5 ];
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+[ physicalSP ] = [ nextPCB + 4 ];   //Storing IP value to the top of stack
+PTLR = [ nextPCB + 6 ];
+R0 = [ nextPCB + 7 ];
+R1 = [ nextPCB + 8 ];
+R2 = [ nextPCB + 9 ];
+R3 = [ nextPCB + 10 ];
+R4 = [ nextPCB + 11 ];
+R5 = [ nextPCB + 12 ];
+R6 = [ nextPCB + 13 ];
+R7 = [ nextPCB + 14 ];
+
+ireturn;
