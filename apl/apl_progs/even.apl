@@ -4,8 +4,7 @@ integer main()
 {
 	integer n, i;
 	i = 0;
-	print("Enter limit: ");
-	read (n);
+	n = 20;
 	if (n > 0) then
 		while (i <= n) do
 			print(i);
