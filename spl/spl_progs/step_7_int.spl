@@ -1,0 +1,83 @@
+//Name : Sooraj Tom, 111501036
+//Date : 30-08-2017
+//Step : 7 Interrupt 1 
+
+alias physicalSP S0;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+
+alias sysCallNo S1;
+sysCallNo = [physicalSP - 1];
+
+if ( sysCallNo == 1) then
+	alias Filename S2;
+	Filename = [physicalSP - 3];
+	
+	alias freeblock S3;
+	alias i S4;
+	i = FAT;
+	
+	//Searching if the file with that name already exists
+	while(i < (FAT + 512)) do
+		if(Filename == [i]) then
+			[physicalSP - 2] = 0;
+			ireturn;
+		endif;
+		i = i + 8;
+	endwhile;
+	
+	//Searching disk-free list for a free block
+	i = DISK_LIST + 23;
+	while( i < (DISK_LIST + 448)) do
+		if([i] == 0)then
+			break;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	//If no blocks are free,
+	if ( i == DISK_LIST + 448) then
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	i = i - DISK_LIST;            //Now i contains the index of the free block
+	freeblock = FAT + (i * 8);
+	//Searching the basic block of the free block
+	if([freeblock + 2] != -1) then
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	[freeblock] = Filename;   //Setting the filename field with the filename parameter
+	[freeblock + 1] = 0;      //Setting filesize as 0
+	[freeblock + 2] = i;      //Setting the basic block
+	
+	load(1, i);               //Loading the basic block to scratchpad
+	
+	//Setting all entries in Scratchpad to -1
+	alias j S5;
+	j = 512;
+	while(j < 1024) do
+		[j] = -1;
+		j = j + 1;
+	endwhile;
+	
+	store(1, i);
+	[DISK_LIST + i] = 1;      //Setting 1 in disk free list
+	
+	store(5, 19);            //Storing FAT back into disk
+	store(6, 20);            //Storing disk-free list back into disk
+	
+	[physicalSP - 2] = 0;    //Setting return value as 0
+	
+endif;
+
+ireturn;
+
+
+
+
+
+
+
+
