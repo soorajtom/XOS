@@ -1,0 +1,85 @@
+//Name : Sooraj Tom, 111501036
+//Date : 07-09-2017
+//Step : 8 Interrupt 2
+
+alias physicalSP S0;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+
+alias sysCallNo S1;
+sysCallNo = [physicalSP - 1];
+
+if(sysCallNo == 2) then
+	alias Filename S2;
+	alias i S3;
+	alias fatentry S4;
+	alias sysopft S5;
+	alias j S6;
+	sysopft = -1;
+	
+	Filename = [physicalSP - 3];
+	i = FAT;
+
+	//Searching if the file with that name exists
+	while(i < (FAT + 512)) do
+		if(Filename == [i]) then
+			break;
+		endif;
+		i = i + 8;
+	endwhile;
+	
+	if (i >= (FAT + 512)) then     //A file in that name does not exist
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	fatentry = i;          		//Now fatentry contains the address of the FAT entry corresponding to the file
+	
+	i = FILE_TABLE;
+	
+	while( i < (FILE_TABLE + 128)) do
+		if([i] == fatentry) then
+			//Found the file already open
+			sysopft = i;
+			break;
+		endif;
+		i = i + 2;
+	endwhile;
+	
+	if(sysopft == -1) then   //We did not find the file already open
+		i = FILE_TABLE;
+		while( i < (FILE_TABLE + 128)) do
+			if([i] == -1) then
+				sysopft = i;
+				break;
+			endif;
+		endwhile;
+		i = i + 2;
+	endif;
+	
+	if(sysopft == -1) then  //There were no free slot in sys-wide open file table either.
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	i = (PTBR - PAGE_TABLE) / 8;    //Obtaining process id of the calling process
+	
+	i = READY_LIST + (32 * i);      //Obtaining the PCB of current process
+	
+	j = i + 15;                     //Obtaining per-process open file table
+	while(j > i + 16) do
+		if([j] == -1) then          //Entry is free in per-process open file table
+			i = j;
+			break;
+		endif;
+	endwhile;
+	
+	if( j > i ) then                //No entry was found to be free in per-process file table
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	
+	
+	
+	
+endif;

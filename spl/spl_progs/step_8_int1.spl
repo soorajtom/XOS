@@ -1,6 +1,6 @@
 //Name : Sooraj Tom, 111501036
-//Date : 30-08-2017
-//Step : 7 Interrupt 1 
+//Date : 07-09-2017
+//Step : 8 Interrupt 1 
 
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
@@ -12,7 +12,7 @@ if ( sysCallNo == 1) then
 	alias Filename S2;
 	Filename = [physicalSP - 3];
 	
-	alias fatentry S3;
+	alias freeblock S3;
 	alias i S4;
 	alias j S5;
 	i = FAT;
@@ -43,24 +43,24 @@ if ( sysCallNo == 1) then
 	
 	i = i - DISK_LIST;            //Now i contains the index of the free block
 	
-	fatentry = FAT;
-	while([fatentry + 2] != -1) do
-		fatentry = fatentry + 8;
-		if (fatentry >= FAT + 512) then
+	freeblock = FAT;
+	while([freeblock + 2] != -1) do
+		freeblock = freeblock + 8;
+		if (freeblock >= FAT + 512) then
 			[physicalSP - 2] = -1;
 			ireturn;
 		endif;
 	endwhile;
 	
 	//Searching the basic block of the free block
-	if([fatentry + 2] != -1) then
+	if([freeblock + 2] != -1) then
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
 	
-	[fatentry] = Filename;   //Setting the filename field with the filename parameter
-	[fatentry + 1] = 0;      //Setting filesize as 0
-	[fatentry + 2] = i;      //Setting the basic block
+	[freeblock] = Filename;   //Setting the filename field with the filename parameter
+	[freeblock + 1] = 0;      //Setting filesize as 0
+	[freeblock + 2] = i;      //Setting the basic block
 	
 	load(1, i);               //Loading the basic block to scratchpad
 	
@@ -79,7 +79,35 @@ if ( sysCallNo == 1) then
 	store(6, 20);            //Storing disk-free list back into disk
 	
 	[physicalSP - 2] = 0;    //Setting return value as 0
+else 
+	if (sysCallNo == 4) then              //Delete system call
+		alias Filename S2;
+		alias i S3;
+		alias fatentry S4;
+		
+		Filename = [physicalSP - 3];
+		i = FAT;
 	
+		//Searching if the file with that name exists
+		while(i < (FAT + 512)) do
+			if(Filename == [i]) then
+				break;
+			endif;
+			i = i + 8;
+		endwhile;
+		
+		if (i >= (FAT + 512)) then     //A file in that name does not exist
+			[physicalSP - 2] = -1;
+			ireturn;
+		endif;
+		
+		fatentry = i;          		//Now fatentry contains the address of the FAT entry corresponding to the file
+		
+		load(1, [fatentry + 2]);             //loading the basic block to scratchpad
+		
+		
+		
+	endif;
 endif;
 
 ireturn;
