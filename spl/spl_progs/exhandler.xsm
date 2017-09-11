@@ -1,3 +1,4 @@
 START
-HALT
+MOV R0, "Exception!!"
+OUT R0
 HALT

@@ -84,6 +84,8 @@ else
 		alias Filename S2;
 		alias i S3;
 		alias fatentry S4;
+		alias blockno S5;
+		alias j S6;
 		
 		Filename = [physicalSP - 3];
 		i = FAT;
@@ -103,9 +105,52 @@ else
 		
 		fatentry = i;          		//Now fatentry contains the address of the FAT entry corresponding to the file
 		
-		load(1, [fatentry + 2]);             //loading the basic block to scratchpad
+		i = FILE_TABLE;
+	
+		while( i < (FILE_TABLE + 128)) do
+			if([i] == fatentry) then                    //Found the file open
+				[physicalSP - 2] = -1;
+				ireturn;
+			endif;
+			i = i + 2;
+		endwhile;
 		
+		blockno = 0;
 		
+		j = 0;
+		while(j < 256)do
+			load(1, [fatentry + 2]);             //loading the basic block to scratchpad
+			blockno = [512 + j];                 //Choosing jth data block
+			if(blockno > 0)then
+				load(1, blockno);                    //Loading the data block into scratchpad
+				i = 512;
+				while(i < 1024 )do
+					[i] = "";                        //Clearing the block currently in scratch pad
+					i = i + 1;
+				endwhile;
+				store(1, blockno);
+				[DISK_LIST + blockno] = 0;           //Clearing the disk-free list entry for the block
+			endif;
+			j = j + 1;
+		endwhile;
+		
+		blockno = [fatentry + 2];
+		load(1, blockno);
+		i = 512;
+		while(i < 1024 )do
+			[i] = "";                        //Clearing the basic block currently in scratch pad
+			i = i + 1;
+		endwhile;
+		store(1,blockno);
+		[DISK_LIST + blockno] = 0;           //Clearing the disk-free list entry for the block
+		
+		[fatentry] = -1;                     //Setting file name as invalid
+		[fatentry + 2] = -1;                 //Setting basic block as invalid
+		
+		store(5, 19);            //Storing FAT back into disk
+		store(6, 20);            //Storing disk-free list back into disk
+	
+		[physicalSP - 2] = 0;    //Setting return value as 0
 		
 	endif;
 endif;

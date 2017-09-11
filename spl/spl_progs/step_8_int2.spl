@@ -14,7 +14,9 @@ if(sysCallNo == 2) then
 	alias fatentry S4;
 	alias sysopft S5;
 	alias j S6;
+	alias ppopft S7;
 	sysopft = -1;
+	ppopft = -1;
 	
 	Filename = [physicalSP - 3];
 	i = FAT;
@@ -49,7 +51,7 @@ if(sysCallNo == 2) then
 		i = FILE_TABLE;
 		while( i < (FILE_TABLE + 128)) do
 			if([i] == -1) then
-				sysopft = i;
+				sysopft = (i - FILE_TABLE)/2;
 				break;
 			endif;
 		endwhile;
@@ -66,20 +68,67 @@ if(sysCallNo == 2) then
 	i = READY_LIST + (32 * i);      //Obtaining the PCB of current process
 	
 	j = i + 15;                     //Obtaining per-process open file table
-	while(j > i + 16) do
+	while(j < i + 31) do
 		if([j] == -1) then          //Entry is free in per-process open file table
-			i = j;
+			ppopft = j - i - 15;    //Setting value as the index of per-process open file table entry
 			break;
 		endif;
+		j = j + 1;
 	endwhile;
 	
-	if( j > i ) then                //No entry was found to be free in per-process file table
+	if( ppopft == -1 ) then         //No entry was found to be free in per-process file table
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
 	
+	[j] = sysopft;                  //Setting the pointer to sys-wide open file table
+	[j + 1] = 0;                    //Setting seek position for the file
 	
+	j = FILE_TABLE + sysopft * 2;
+	[j] = fatentry;                 //Setting FAT index at the free slot in sys-wide open file table
+	[j + 1] = [j + 1] + 1;          //Incrementing the file open count by 1
 	
-	
-	
+	[physicalSP - 2] = (ppopft/2);
+		
+else
+	if(sysCallNo == 3) then         //Close system call
+		alias Filedesc S2;
+		alias i S3;
+		alias j S4;
+		alias ppopft S5;
+		
+		Filedesc = [physicalSP - 3];
+		
+		if((Filedesc > 7) || (Filedesc < 0)) then   //Invalid file descriptor
+			[physicalSP - 2] = -1;
+			ireturn;
+		endif;
+		
+		i = (PTBR - PAGE_TABLE) / 8;    //Obtaining process id of the calling process
+		i = READY_LIST + (32 * i);      //Obtaining the PCB of current process
+		i = i + 15;                     //Obtaining per-process open file table
+		if([i + Filedesc] == -1) then   //File descriptor is invalid
+			[physicalSP - 2] = -1;
+			ireturn;
+		endif;
+		
+		ppopft = i + Filedesc;          //Storing the address entry in per-process file table
+		i = [i + Filedesc];         // i now contains the index of the file in sys-wide open-file table
+		
+		i = FILE_TABLE + i;     // i now contains the address of entry corresponding to the file
+		
+		if([i + 1] == 1) then           //The file is open only by one process
+			[i + 1] = 0;
+			[i] = -1;
+		else
+			[i + 1] = [i + 1] - 1;     //Decrementing the open count for the file
+		endif;
+		
+		[ppopft] = -1;                //Invalidating per-process file table entry
+		
+		[physicalSP - 2] = 0;
+		
+	endif;
 endif;
+
+ireturn;
