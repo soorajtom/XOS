@@ -1,5 +1,5 @@
 //Name : Sooraj Tom, 111501036
-//Date : 07-09-2017
+//Date : 13-09-2017
 //Step : 8 Interrupt 1 
 
 alias physicalSP S0;
@@ -52,11 +52,6 @@ if ( sysCallNo == 1) then
 		endif;
 	endwhile;
 	
-	//Searching the basic block of the free block
-	if([freeblock + 2] != -1) then
-		[physicalSP - 2] = -1;
-		ireturn;
-	endif;
 	
 	[freeblock] = Filename;   //Setting the filename field with the filename parameter
 	[freeblock + 1] = 0;      //Setting filesize as 0
@@ -103,12 +98,13 @@ else
 			ireturn;
 		endif;
 		
-		fatentry = i;          		//Now fatentry contains the address of the FAT entry corresponding to the file
-		
+		fatentry = i;               		//Now fatentry contains the address of the FAT entry corresponding to the file
+		j = (i - FAT) / 8;          		//Now j contains the index of the FAT entry corresponding to the file
+
 		i = FILE_TABLE;
 	
 		while( i < (FILE_TABLE + 128)) do
-			if([i] == fatentry) then                    //Found the file open
+			if([i] == j) then                    //Found the file open
 				[physicalSP - 2] = -1;
 				ireturn;
 			endif;
