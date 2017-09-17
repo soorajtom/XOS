@@ -8,7 +8,7 @@ physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
 
-if ( sysCallNo == 1) then
+if ( sysCallNo == 1) then            //Create system call
 	alias Filename S2;
 	Filename = [physicalSP - 3];
 	

@@ -11,18 +11,66 @@ sysCallNo = [physicalSP - 1];
 if(sysCallNo == 5) then    //Write system call
 	alias Filedesc S2;
 	alias i S3;
-	alias j S4;
-	alias ppopft S5;
+	alias lseekp S4;
+	alias softi S5;
 	alias Data S6;
+	alias fatindex S7;
+	alias blockno S8;
+	alias lseekadd S9;
 	
-	Data = [physicalSP - 3]
+	Data = [physicalSP - 3];
 	Filedesc = [physicalSP - 4] * 2;
-
+		
 	if((Filedesc > 14) || (Filedesc < 0)) then   //Invalid file descriptor
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
 	
+	i = (PTBR - PAGE_TABLE) / 8;    //Obtaining process id of the calling process
+	i = READY_LIST + (32 * i);      //Obtaining the PCB of current process
+	i = i + 15;                     //Obtaining per-process open file table
+	lseekadd = i + Filedesc + 1;
+	if([i + Filedesc] == -1) then   //File descriptor is invalid
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+
+	softi = [i + Filedesc];                  //softi contains sys-wide open file table index of the file
+	lseekp = [lseekadd];             //lseekp contains the LSEEK position of the file
 	
+	fatindex = [FILE_TABLE + softi * 2];
 	
+	load(1, [FAT + (fatindex * 8) + 2]);      //Loading the basic block into scratchpad
+	
+	blockno = lseekp / 512;                  //block no has the index of datablock corresponding to the lseek position
+	
+	if( [512 + blockno] == -1) then          //If the basic block does not exist
+		i = 21;                              //0 to 20 are reserved
+		while(i < 447) do
+			if([DISK_LIST + i] == 0) then 
+				[DISK_LIST + i] = 1;                      //Marking the block as not-free in disk-free list
+				[512 + blockno] = i;                      //Adding the new data block in basic block
+				store(1, [FAT + (fatindex * 8) + 2]);     //Storing back the new basic block
+				[FAT + (fatindex * 8) + 1] = [FAT + (fatindex * 8) + 1] + 512;  //Incrementing the size of file by 1
+				store(5, 19);                                                 //Storing FAT back into disk
+				store(6, 20);                                                 //Storing disk-free list back into disk
+				blockno = i;
+				break;
+			endif;
+		i = i + 1;
+		endwhile;
+		if( i == 447 )then
+			[physicalSP - 2] = -1;
+			ireturn;
+		endif;
+	else
+		blockno = [512 + blockno];
+	endif;
+	
+	load(1, blockno);                             //Loading the block to the scratchpad
+	[512 + (lseekp % 512)] = Data;                //Writing data to the block
+	store(1, blockno);                            //Storing the data block back
+	[lseekadd] = [lseekadd] + 1;                  //Incrementing Lseek pointer
+	[physicalSP - 2] = 0;                         //Return with success
+	ireturn;
 endif;

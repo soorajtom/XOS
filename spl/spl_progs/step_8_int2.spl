@@ -34,7 +34,7 @@ if(sysCallNo == 2) then    //Open system call
 		ireturn;
 	endif;
 	
-	fatentry = i - FAT;          		//Now fatentry contains the address of the FAT entry corresponding to the file
+	fatentry = (i - FAT)/8;          		//Now fatentry contains the index of the FAT entry corresponding to the file
 	i = FILE_TABLE;
 
 	while( i < (FILE_TABLE + 128)) do
@@ -57,7 +57,6 @@ if(sysCallNo == 2) then    //Open system call
 			i = i + 2;
 		endwhile;
 	endif;
-	
 	if(sysopft == -1) then  //There were no free slot in sys-wide open file table either.
 		[physicalSP - 2] = -1;
 		ireturn;
@@ -73,7 +72,7 @@ if(sysCallNo == 2) then    //Open system call
 			ppopft = j - i - 15;    //Setting value as the index of per-process open file table entry
 			break;
 		endif;
-		j = j + 1;
+		j = j + 2;
 	endwhile;
 	
 	if( ppopft == -1 ) then         //No entry was found to be free in per-process file table
@@ -87,7 +86,6 @@ if(sysCallNo == 2) then    //Open system call
 	j = FILE_TABLE + sysopft * 2;
 	[j] = fatentry;                 //Setting FAT index at the free slot in sys-wide open file table
 	[j + 1] = [j + 1] + 1;          //Incrementing the file open count by 1
-	
 	[physicalSP - 2] = (ppopft/2);
 		
 else
@@ -125,7 +123,7 @@ else
 		endif;
 		
 		[ppopft] = -1;                //Invalidating per-process file table entry
-		
+		[ppopft + 1] = 0;             //Setting LSEEK 
 		[physicalSP - 2] = 0;
 		
 	endif;
