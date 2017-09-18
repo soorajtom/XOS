@@ -10,7 +10,7 @@ enddecl
 integer main()
 {
 	i = 0;
-	while(i != 9) do
+	while(i != 10) do
 		print("--------");
 		print("Select");
 		print("1.Create");
@@ -21,7 +21,9 @@ integer main()
 		print("6.Delete");
 		print("7.Close");
 		print("8.Break");
-		print("9.exit");
+		print("9.Writeloop");
+		print("10.exit");
+		print("--------");
 		read(i);
 		
 		if(i == 1)then
@@ -50,6 +52,9 @@ integer main()
 			status = Read(f1, word);
 			print("return:");
 			print(status);
+			if(status < 0)then
+				continue;
+			endif;
 			print("word read:");
 			print(word);
 		else if(i == 5)then
@@ -74,6 +79,19 @@ integer main()
 			print(status);
 		else if(i == 8)then
 			breakpoint;
+		else if(i == 9)then
+			print("File:");
+			read(f1);
+			print("Count:");
+			read(pos);
+			word = 0;
+			while(word < pos)do
+				status = Write(f1, word);
+				print("return:");
+				print(status);
+				word = word + 1;
+			endwhile;
+		endif;
 		endif;
 		endif;
 		endif;

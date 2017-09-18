@@ -1,5 +1,5 @@
 -1
-512
+0
 -1
 
 
@@ -1057,11 +1057,11 @@ MOV R0,
 MOV R0,
 [R0]
 MOV R1,
-9
+10
 NE R0,
 R1
 JZ R0,
-00558
+00686
 MOV R0,
 "--------"
 OUT R0
@@ -1103,7 +1103,15 @@ MOV R0,
 OUT R0
 
 MOV R0,
-"9.exit"
+"9.Writeloop"
+OUT R0
+
+MOV R0,
+"10.exit"
+OUT R0
+
+MOV R0,
+"--------"
 OUT R0
 
 MOV R0,
@@ -1121,7 +1129,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00146
+00154
 MOV R0,
 "Filename:"
 OUT R0
@@ -1166,7 +1174,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1177,7 +1185,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00202
+00210
 MOV R0,
 "Filename:"
 OUT R0
@@ -1222,7 +1230,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1233,7 +1241,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00276
+00284
 MOV R0,
 "File"
 OUT R0
@@ -1296,7 +1304,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1307,7 +1315,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00356
+00378
 MOV R0,
 "File"
 OUT R0
@@ -1367,6 +1375,20 @@ MOV R0,
 OUT R0
 
 MOV R0,
+1536
+MOV R0,
+[R0]
+MOV R1,
+0
+LT R0,
+R1
+JZ R0,
+00366
+JMP 30
+
+JMP 00366
+
+MOV R0,
 "word read:"
 OUT R0
 
@@ -1376,7 +1398,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1387,7 +1409,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00430
+00452
 MOV R0,
 "File"
 OUT R0
@@ -1450,7 +1472,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1461,7 +1483,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00486
+00508
 MOV R0,
 "Filename:"
 OUT R0
@@ -1506,7 +1528,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1517,7 +1539,7 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00542
+00564
 MOV R0,
 "File:"
 OUT R0
@@ -1562,7 +1584,7 @@ MOV R0,
 [R0]
 OUT R0
 
-JMP 00556
+JMP 00684
 
 MOV R0,
 1538
@@ -1573,10 +1595,116 @@ MOV R1,
 EQ R0,
 R1
 JZ R0,
-00556
+00578
 BRKP
 
-JMP 00556
+JMP 00684
+
+MOV R0,
+1538
+MOV R0,
+[R0]
+MOV R1,
+9
+EQ R0,
+R1
+JZ R0,
+00684
+MOV R0,
+"File:"
+OUT R0
+
+MOV R0,
+1537
+IN R1
+
+MOV [R0],
+R1
+MOV R0,
+"Count:"
+OUT R0
+
+MOV R0,
+1541
+IN R1
+
+MOV [R0],
+R1
+MOV R0,
+1540
+MOV R1,
+0
+MOV [R0],
+R1
+MOV R0,
+1540
+MOV R0,
+[R0]
+MOV R1,
+1541
+MOV R1,
+[R1]
+LT R0,
+R1
+JZ R0,
+00682
+MOV R0,
+1536
+MOV R1,
+1537
+MOV R1,
+[R1]
+PUSH R1
+
+MOV R1,
+1540
+MOV R1,
+[R1]
+PUSH R1
+
+PUSH R0
+
+MOV R1,
+5
+PUSH R1
+
+INT 4
+
+POP R2
+
+POP R1
+
+POP R2
+
+POP R2
+
+MOV [R0],
+R1
+MOV R0,
+"return:"
+OUT R0
+
+MOV R0,
+1536
+MOV R0,
+[R0]
+OUT R0
+
+MOV R0,
+1540
+MOV R1,
+1540
+MOV R1,
+[R1]
+MOV R2,
+1
+ADD R1,
+R2
+MOV [R0],
+R1
+JMP 614
+
+JMP 00684
 
 JMP 30
 
@@ -1587,134 +1715,6 @@ PUSH R0
 INT 7
 
 INT 7
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
