@@ -61,7 +61,7 @@ PTLR = 4;
 
 //initialising Per-Process open file table for INIT process
 counter = 15;
-while ( counter <  31) do			// 64 entries, each of size 2 words
+while ( counter <  31) do			// 8 entries, each of size 2 words
 	[ READY_LIST + counter] = -1;	// Set system-wide open file table entry to -1
 	counter = counter + 1;			// Move to next entry
 endwhile;

@@ -41,7 +41,7 @@ if(sysCallNo == 6) then    //Seek system call
 	
 	filesize = [fatadd + 1] ;                   //Getting the filesize 
 	
-	if((newseek >=0 ) && (newseek < filesize))then
+	if((newseek >=0 ) && (newseek <= filesize))then
 		[i + Filedesc + 1] = newseek;       //Setting the new seek position
 	else
 		[physicalSP - 2] = -1;              //The requested seek position is out of bounds

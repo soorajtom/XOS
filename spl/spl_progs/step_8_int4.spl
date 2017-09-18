@@ -44,9 +44,14 @@ if(sysCallNo == 5) then    //Write system call
 	
 	blockno = lseekp / 512;                  //block no has the index of datablock corresponding to the lseek position
 	
+	if(blockno >= 256)then                   //Reached the maximum number of data blocks possible
+	    [physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
 	if( [512 + blockno] == -1) then          //If the basic block does not exist
 		i = 21;                              //0 to 20 are reserved
-		while(i < 447) do
+		while(i < 448) do
 			if([DISK_LIST + i] == 0) then 
 				[DISK_LIST + i] = 1;                      //Marking the block as not-free in disk-free list
 				[512 + blockno] = i;                      //Adding the new data block in basic block
@@ -59,7 +64,7 @@ if(sysCallNo == 5) then    //Write system call
 			endif;
 		i = i + 1;
 		endwhile;
-		if( i == 447 )then
+		if( i == 448 )then
 			[physicalSP - 2] = -1;
 			ireturn;
 		endif;
