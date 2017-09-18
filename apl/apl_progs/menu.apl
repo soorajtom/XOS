@@ -1,0 +1,87 @@
+decl
+	integer status;
+	integer f1;
+	integer i;
+	string filename;
+	integer word;
+	integer pos;
+enddecl
+
+integer main()
+{
+	i = 0;
+	while(i != 9) do
+		print("--------");
+		print("Select");
+		print("1.Create");
+		print("2.Open");
+		print("3.Write");
+		print("4.Read");
+		print("5.Seek");
+		print("6.Delete");
+		print("7.Close");
+		print("8.Break");
+		print("9.exit");
+		read(i);
+		
+		if(i == 1)then
+			print("Filename:");
+			read(filename);	
+			status = Create(filename);
+			print("return:");
+			print(status);
+		else if(i == 2)then
+			print("Filename:");
+			read(filename);
+			status = Open(filename);
+			print("return:");
+			print(status);
+		else if(i == 3)then
+			print("File");
+			read(f1);
+			print("WordToWrite:");
+			read(word);
+			status = Write(f1, word);
+			print("return:");
+			print(status);
+		else if(i == 4)then
+			print("File");
+			read(f1);
+			status = Read(f1, word);
+			print("return:");
+			print(status);
+			print("word read:");
+			print(word);
+		else if(i == 5)then
+			print("File");
+			read(f1);
+			print("New seek:");
+			read(pos);
+			status = Seek(f1, pos);
+			print("return:");
+			print(status);
+		else if(i == 6)then
+			print("Filename:");
+			read(filename);
+			status = Delete(filename);
+			print("return:");
+			print(status);
+		else if(i == 7)then
+			print("File:");
+			read(f1);
+			status = Close(f1);
+			print("return:");
+			print(status);
+		else if(i == 8)then
+			breakpoint;
+		endif;
+		endif;
+		endif;
+		endif;
+		endif;
+		endif;
+		endif;
+		endif;
+	endwhile;
+	return 0;
+}
