@@ -1,4 +1,26 @@
 START
-MOV R0, "Exception!!"
-OUT R0
+MOV T0, EFR
+MOD T0, 10
+MOV S5, T0
+MOV T0, EFR
+DIV T0, 10
+MOD T0, 100
+MOV S6, T0
+MOV T0, EFR
+DIV T0, 1000
+MOV S7, T0
+MOV T0,  "--Exception--"
+OUT T0
+MOV T0,  "Cause"
+OUT T0
+MOV T0, S5
+OUT T0
+MOV T0,  "VPagenum"
+OUT T0
+MOV T0, S6
+OUT T0
+MOV T0,  "Ip_addr"
+OUT T0
+MOV T0, S7
+OUT T0
 HALT

@@ -1,0 +1,99 @@
+//Name : Sooraj Tom, 111501036
+//Date : 20-09-2017
+//Step : 9 OS startup code
+
+//loading exception handler
+load (7 , 1); 
+load (8 , 2);
+
+//loading interrupt 1
+load (11, 5);
+load (12, 6);
+//loading interrupt 2
+load (13, 7);
+load (14, 8);
+//loading interrupt 3
+load (15, 9);
+load (16, 10);
+//loading interrupt 4
+load (17, 11);
+load (18, 12);
+//loading interrupt 5
+load (19, 13);
+load (20, 14);
+//loading interrupt 6
+load (21, 15);
+load (22	, 16);
+//loading interrupt 7
+load (23, 17); 
+load (24, 18);
+//loading timer interrupt
+load (9, 3);
+load (10, 4);
+//loading FAT block and disk-free list
+load(5, 19);
+load(6, 20);
+
+//Initialising the system-wide open table
+alias counter S0;			
+counter = 0;
+while ( counter <  128) do			// 64 entries, each of size 2 words
+	[ FILE_TABLE + counter + 0] = -1;	// Set FAT Index to -1
+	[ FILE_TABLE + counter + 1] =  0;	// Set File Open Count to 0
+	counter = counter + 2;			// Move to next entry
+endwhile;
+
+//Initialising memory free list
+counter = 29;
+while(counter < 64)do
+	[MEM_LIST + counter] = 0;
+	counter = counter + 1;
+endwhile;
+
+//Initialising all PCBs
+counter = 0;
+while(counter < 32)do
+	[READY_LIST + 1 + (counter * 32)] = 0;
+	counter = counter + 1;
+endwhile;
+
+//setting PID 0 in ready-list
+[READY_LIST + 0] = 0;  
+
+//loading INIT code
+load (25, 21);
+load (26, 22);
+load (27, 23);
+
+//setting page table base register
+PTBR = 1024;
+PTLR = 4;
+
+//Adding page table entries
+[PTBR + 0] = 25;
+[PTBR + 1] = "01";
+[PTBR + 2] = 26;
+[PTBR + 3] = "01";
+[PTBR + 4] = 27;
+[PTBR + 5] = "01";
+[PTBR + 6] = 28;  //page for Stack
+[PTBR + 7] = "01";
+
+//initialising Per-Process open file table for INIT process
+counter = 15;
+while ( counter <  31) do			// 8 entries, each of size 2 words
+	[ READY_LIST + counter] = -1;	// Set system-wide open file table entry to -1
+	counter = counter + 1;			// Move to next entry
+endwhile;
+
+[READY_LIST + 1] = 2; //STATE = running
+
+//set StackPointer to starting of page 3
+SP = 3 * 512; 
+
+//Set IP value on the top of the stack
+[28 * 512] = 0;
+
+//Transferring control to user program
+ireturn;
+

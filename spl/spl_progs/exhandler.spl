@@ -1,0 +1,17 @@
+
+alias Cause S5;
+alias VPagenum S6;
+alias Ip_addr S7;
+
+Cause = EFR % 10;		// Gets value of cause field (size 1 char)
+VPagenum = (EFR / 10) % 100;    // Gets value of BadVAddr 
+Ip_addr = (EFR/1000);		//Gets value of IP at the point of exception
+
+print("--Exception--");
+print("Cause");
+print(Cause);
+print("VPagenum");
+print(VPagenum);
+print("Ip_addr");
+print(Ip_addr);
+
