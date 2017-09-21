@@ -4,7 +4,7 @@ integer main()
 {
 	integer n, i;
 	i = 1;
-	n = 20;
+	n = 30;
 	if (n > 0) then
 		while (i <= n) do
 			print(i);
@@ -13,5 +13,6 @@ integer main()
 	else
 		print("not positive");
 	endif;
+	print("Odd end");
 	return 0;
 }

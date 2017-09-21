@@ -1,0 +1,86 @@
+//Name : Sooraj Tom, 111501036
+//Date : 21-09-2017
+//Step : 9 Interrupt 7
+
+alias physicalSP S0;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+
+alias sysCallNo S1;
+sysCallNo = [physicalSP - 1];
+
+if ( sysCallNo == 10) then            //Exit system call
+	alias i S2;
+	alias nextready S3;
+	alias ftindex S4;
+	alias sysopft S5;
+	alias pcbadd S6;
+	
+	i = 0;
+	while(i < 32)do                             //Searching for a ready process
+		if([READY_LIST + (i * 32) + 1] == 1)then
+			nextready = i;
+			break;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	if( i == 32 )then                          //No process found ready
+		halt;
+	endif;
+	
+	pcbadd = (PTBR - PAGE_TABLE) / 8;    //Obtaining process id of the calling process
+	pcbadd = READY_LIST + (32 * i);      //Obtaining the PCB of current process
+	
+	ftindex = 0;
+	
+	while(ftindex < 8)do                               //Closing files opened by the process
+		if([pcbadd + 15 + (ftindex * 2)] > -1)then
+			sysopft = [pcbadd + 15 + (ftindex * 2)];
+			sysopft = FILE_TABLE + sysopft * 2;
+			if([sysopft + 1] == 1) then                //The file is open only by one process
+				[sysopft + 1] = 0;
+				[sysopft] = -1;
+			else
+				[sysopft + 1] = [sysopft + 1] - 1;     //Decrementing the open count for the file
+			endif;
+			[pcbadd + 15 + (ftindex * 2)] = -1;        //Invalidating the per-process open file table entry
+			[pcbadd + 15 + (ftindex * 2) + 1] = 0;
+		endif;
+		ftindex = ftindex + 1;
+	endwhile;
+	
+	[pcbadd + 1] = 0;                               //State is set to be terminated
+	
+	i = 0;
+	while(i < 4)do                                   //Freeing memory pages allocated to the process
+		if([PTBR + (i * 2) + 1]%10 == "1")then       //On seeing a valid page
+			[PTBR + (i * 2) + 1] = "00";
+			[MEM_LIST + [PTBR + (i * 2)]] = 0;
+			[PTBR + (i * 2)] = -1;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	/////////////Deploying the next ready process//////////////////
+	
+	alias nextPCB S7;
+	nextPCB = READY_LIST + (nextready * 32);
+	[ nextPCB + 1 ] = 2;                                //Set STATE Value to RUNNING
+	BP =  [ nextPCB + 2 ];
+	SP =  [ nextPCB + 3 ] + 1;
+	PTBR = [ nextPCB + 5 ];
+	physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+	[ physicalSP ] = [ nextPCB + 4 ];   //Storing IP value to the top of stack
+	PTLR = [ nextPCB + 6 ];
+	R0 = [ nextPCB + 7 ];
+	R1 = [ nextPCB + 8 ];
+	R2 = [ nextPCB + 9 ];
+	R3 = [ nextPCB + 10 ];
+	R4 = [ nextPCB + 11 ];
+	R5 = [ nextPCB + 12 ];
+	R6 = [ nextPCB + 13 ];
+	R7 = [ nextPCB + 14 ];	
+	
+	ireturn;
+	
+endif;

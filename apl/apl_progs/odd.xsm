@@ -14,7 +14,7 @@ MOV [R0], R1
 MOV R0, 1
 MOV R1, BP
 ADD R0, R1
-MOV R1, 20
+MOV R1, 30
 MOV [R0], R1
 MOV R0, 1
 MOV R1, BP
@@ -51,6 +51,8 @@ MOV [R0], R1
 JMP 50
 JMP 00108
 MOV R0, "not positive"
+OUT R0
+MOV R0, "Odd end"
 OUT R0
 MOV R0, 10
 PUSH R0

@@ -15,10 +15,12 @@ if ( sysCallNo == 8) then            //Fork system call
 	alias j S5;
 	alias k S6;
 	alias pcbaddr S7;
+	alias openc S8;
+	alias fileaddr S9;
 	
 	newpid = -1;
 	i = 0;
-	while(i < 32)do
+	while(i < 32)do                                 //Searching for a free entry in the process table
 		if([READY_LIST + (i * 32) + 1] == 0)then
 			newpid = i;
 			break;
@@ -32,14 +34,13 @@ if ( sysCallNo == 8) then            //Fork system call
 	endif;
 	
 	pcbaddr = READY_LIST + (newpid * 32);
-	[pcbaddr] = newpid;  //Setting the PID 
+	[pcbaddr] = newpid;                   //Setting the PID 
 	
 	
 	j = 0;
 	i = 0;
-	while(i < 4)do
-//		if(([PTBR + i + 1] == "01") || ([PTBR + i + 1] == "11")) then
-		if([PTBR + (i*2) + 1]%10 == 1)then
+	while(i < 4)do                             //Counting number of pages allocated
+		if([PTBR + (i*2) + 1]%10 == 1)then     //If the page's valid bit is 1
 			j = j + 1;
 		endif;
 		i = i + 1;
@@ -47,7 +48,7 @@ if ( sysCallNo == 8) then            //Fork system call
 	
 	nopages = j;
 	i = 29;
-	while(i < 64 && j > 0)do
+	while(i < 64 && j > 0)do                   //Searching if enough free pages are present
 		if([MEM_LIST + i] == 0)then
 			j = j - 1;
 		endif;
@@ -61,22 +62,25 @@ if ( sysCallNo == 8) then            //Fork system call
 	
 	i = 29;
 	k = 0;
-	while(k < nopages * 2)do
-		while([MEM_LIST + i] == 1)do
-			i = i + 1;
-		endwhile;
-		//Now i is the index of a free memory page
+	while(k < 4 * 2)do
+		if([PTBR + k + 1]%10 == "0")then                       //kth page in parent process is invalid
+			[PAGE_TABLE + (newpid * 8) + k] = -1;              //Setting the page table entry as invalid
+			[PAGE_TABLE + (newpid * 8) + k + 1] = "00";        //Setting auxilliary information for page
+		else
+			while([MEM_LIST + i] == 1)do
+				i = i + 1;
+			endwhile;                                         //Now i is the index of a free memory page
 		
-		[MEM_LIST + i] = 1;                  //Setting the memory page as used
-		j = 0;
-		while(j < 512) do
-			[(i * 512) + j] = [([PTBR + k] * 512) + j];       //Copying each word in the page
-			j = j + 1;
-		endwhile; 
+			[MEM_LIST + i] = 1;                               //Setting the memory page as used
+			j = 0;
+			while(j < 512) do
+				[(i * 512) + j] = [([PTBR + k] * 512) + j];       //Copying each word in the page
+				j = j + 1;
+			endwhile; 
 		
-		[PAGE_TABLE + (newpid * 8) + k] = i;               //Adding the page to per-process page table
-		[PAGE_TABLE + (newpid * 8) + k + 1] = "01";        //Setting auxilliary information for page
-		
+			[PAGE_TABLE + (newpid * 8) + k] = i;               //Adding the page to per-process page table
+			[PAGE_TABLE + (newpid * 8) + k + 1] = "01";        //Setting auxilliary information for page
+		endif;
 		k = k + 2;
 	endwhile;
 	
@@ -85,7 +89,7 @@ if ( sysCallNo == 8) then            //Fork system call
 	[pcbaddr + 3] = SP - 1;                       //Setting SP value in PCB
 	[pcbaddr + 2] = BP;                           //Setting BP value in PCB
 	[pcbaddr + 1] = 1;                           //Setting State as READY
-	[pcbaddr + 6] = 4;                             
+	[pcbaddr + 6] = PTLR;                        //Setting the PTLR in PCB                             
 	[pcbaddr + 7] = R0;
 	[pcbaddr + 8] = R1;
 	[pcbaddr + 9] = R2;
@@ -96,14 +100,19 @@ if ( sysCallNo == 8) then            //Fork system call
 	[pcbaddr + 14] = R7;
 	
 	i = 0;
-	j = READY_LIST + ((PAGE_TABLE - PTBR) * 4) + 15;      //j contains the addr of per-process file table of the calling process
+	k = 0;
+	j = (PAGE_TABLE - PTBR) / 8;         //now, j contains the PID of the parent process
+	j = READY_LIST + (j * 32) + 15;      //j contains the addr of per-process file table of the calling process
 	while(i < 8)do
-		[pcbaddr + 15 + i] = [j];
-		if([j] > -1)then                                 //There is a file open in that descriptor
-			[FILE_TABLE + [j] * 2] = [FILE_TABLE + [j] * 2] + 1;
+		fileaddr = j + (k * 2);
+		[pcbaddr + 15 + (i * 2)] = [fileaddr];                  //Copying the open file table entry
+		[pcbaddr + 15 + (i * 2) + 1] = [fileaddr + 1];
+		if([fileaddr] > -1)then                                 //There is a file open in that descriptor
+			openc = FILE_TABLE + ([fileaddr] * 2) + 1 ;         //openc is the address of the open counter of file
+			[openc] = [openc] + 1;
 		endif;
-		j = j + 1;
 		i = i + 1;
+		k = k + 1;
 	endwhile;
 	
 	[physicalSP - 2] = newpid;                        //Setting the return value for parent process

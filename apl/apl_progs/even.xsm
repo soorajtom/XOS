@@ -52,6 +52,8 @@ JMP 50
 JMP 00108
 MOV R0, "not positive"
 OUT R0
+MOV R0, "Even end"
+OUT R0
 MOV R0, 10
 PUSH R0
 INT 7
