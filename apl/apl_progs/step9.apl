@@ -4,7 +4,7 @@ integer main()
 	print("Main start");
 	
 	status = Fork();
-	if(status > -1)then
+	if(status == -2)then
 		status = Exec("even.xsm");
 		if(status == -1)then
 			print("Exec err");
@@ -12,7 +12,7 @@ integer main()
 	endif;
 	
 	status = Fork();
-	if(status > -1)then
+	if(status == -2)then
 		status = Exec("odd.xsm");
 		if(status == -1)then
 			print("Exec err");

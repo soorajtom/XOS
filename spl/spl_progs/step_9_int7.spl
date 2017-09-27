@@ -14,22 +14,24 @@ if ( sysCallNo == 10) then            //Exit system call
 	alias ftindex S4;
 	alias sysopft S5;
 	alias pcbadd S6;
+	alias currentpid S7;
 	
-	i = 0;
-	while(i < 32)do                             //Searching for a ready process
+	currentpid = ((PTBR - PAGE_TABLE) / 8);
+	
+	i = (currentpid + 1) % 32;
+	while(i != currentpid)do                             //Searching for a ready process
 		if([READY_LIST + (i * 32) + 1] == 1)then
 			nextready = i;
 			break;
 		endif;
-		i = i + 1;
+		i = (i + 1) % 32;
 	endwhile;
 	
-	if( i == 32 )then                          //No process found ready
+	if( i == currentpid )then                          //No process found ready
 		halt;
 	endif;
 	
-	pcbadd = (PTBR - PAGE_TABLE) / 8;    //Obtaining process id of the calling process
-	pcbadd = READY_LIST + (32 * i);      //Obtaining the PCB of current process
+	pcbadd = READY_LIST + (32 * currentpid);      //Obtaining the PCB of current process
 	
 	ftindex = 0;
 	

@@ -23,7 +23,7 @@ load (19, 13);
 load (20, 14);
 //loading interrupt 6
 load (21, 15);
-load (22, 16);
+load (22	, 16);
 //loading interrupt 7
 load (23, 17); 
 load (24, 18);
@@ -85,6 +85,8 @@ while ( counter <  31) do			// 8 entries, each of size 2 words
 	[ READY_LIST + counter] = -1;	// Set system-wide open file table entry to -1
 	counter = counter + 1;			// Move to next entry
 endwhile;
+
+[READY_LIST + 31] = 0;              //Setting the parent PID for INIT
 
 [READY_LIST + 1] = 2; //STATE = running
 

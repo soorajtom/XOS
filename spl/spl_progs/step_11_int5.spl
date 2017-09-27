@@ -1,6 +1,6 @@
 //Name : Sooraj Tom, 111501036
-//Date : 20-09-2017
-//Step : 9 Interrupt 5
+//Date : 21-09-2017
+//Step : 11 Interrupt 5
 
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
@@ -98,6 +98,7 @@ if ( sysCallNo == 8) then            //Fork system call
 	[pcbaddr + 12] = R5;
 	[pcbaddr + 13] = R6;
 	[pcbaddr + 14] = R7;
+	[pcbaddr + 31] = (PAGE_TABLE - PTBR) / 8;   //Setting the parent PID   
 	
 	i = 0;
 	k = 0;
@@ -117,6 +118,7 @@ if ( sysCallNo == 8) then            //Fork system call
 	
 	[physicalSP - 2] = newpid;                        //Setting the return value for parent process
 	
+	//([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)
 	physicalSP = ([[pcbaddr + 5] + 2 * ((SP - 1) / 512)] * 512) + ((SP - 1) % 512);
 	[physicalSP - 1] = -2;
 endif;

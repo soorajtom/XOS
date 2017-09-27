@@ -4,7 +4,6 @@
 
 
 /////////////////Saving state of current process to PCB/////
-
 alias currentPID S0;
 currentPID = (PTBR - 1024) / 8; //Getting current running process
 alias currentPCB S1;
