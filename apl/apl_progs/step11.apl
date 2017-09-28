@@ -15,6 +15,7 @@ integer main()
 			status = Exec(comm);
 			if(status == -1)then
 				print("Exec err");
+				Exit();
 			endif;
 		else
 			status = Wait(fstatus);
