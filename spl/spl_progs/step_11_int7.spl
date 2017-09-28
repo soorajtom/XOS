@@ -155,7 +155,6 @@ else
 		R6 = [ nextPCB + 13 ];
 		R7 = [ nextPCB + 14 ];
 		
-		
 		ireturn;
 	else
 		if ( sysCallNo == 14) then            //Signal system call
