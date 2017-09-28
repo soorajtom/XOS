@@ -162,13 +162,14 @@ else
 			alias i S2;
 			alias currpid S3;
 			
-			currpid = [physicalSP - 3];
+			currpid = ((PTBR - PAGE_TABLE) / 8);
 			
 			i = 0;
 			while(i < 32)do
 				if([READY_LIST + (i * 32) + 1] == 100 + currpid)then
 					[READY_LIST + (i * 32) + 1] = 1;
 				endif;
+				i = i + 1;
 			endwhile;
 			ireturn;
 		endif;
