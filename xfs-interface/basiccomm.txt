@@ -14,5 +14,7 @@ load --exec $apldir/even.xsm
 load --exec $apldir/odd.xsm
 load --exec $apldir/infloop.xsm
 load --exec $apldir/signal.xsm
+load --exec $apldir/getpid.xsm
+load --exec $apldir/getppid.xsm
 exit
 

@@ -55,10 +55,11 @@ enddecl
 integer main()
 {
 	print("Main start");
-	comm = "";
-	while(comm != "exit")do
+	comm = "exit";
+	while(1 == 1)do
 		print("Command:");
 		read(comm);
+		if(comm == "exit")then break; endif;
 		fstatus = Fork();
 		if(fstatus == -2)then
 			print("*****");
@@ -71,6 +72,28 @@ integer main()
 			status = Wait(fstatus);
 		endif;
 	endwhile;
+	print("Main end");
+	return 0;
+}
+
+
+
+
+decl
+	integer status, fstatus;
+	string comm;
+enddecl
+integer main()
+{
+	print("Main start");
+	status = Fork();
+	if(status == -2)then
+		status = Exec("even.xsm");
+	endif;
+	fstatus = Fork();
+	if(fstatus == -2)then
+		status = Exec("odd.xsm");
+	endif;
 	print("Main end");
 	return 0;
 }
