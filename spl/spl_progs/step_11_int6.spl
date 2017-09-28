@@ -1,7 +1,6 @@
 //Name : Sooraj Tom, 111501036
 //Date : 21-09-2017
 //Step : 11 Interrupt 6
-
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 

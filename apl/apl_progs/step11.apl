@@ -1,10 +1,11 @@
+decl
+	integer status, fstatus;
+	string comm;
+enddecl
 integer main()
 {
-	integer status;
-	integer fstatus;
-	string comm;
 	print("Main start");
-	comm = "";
+	comm = "exit";
 	while(1 == 1)do
 		print("Command:");
 		read(comm);
@@ -17,9 +18,9 @@ integer main()
 			endif;
 		else
 			status = Wait(fstatus);
-			breakpoint;
 		endif;
 	endwhile;
 	print("Main end");
 	return 0;
 }
+	

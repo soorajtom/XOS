@@ -127,6 +127,8 @@ else
 		[ cpcbaddr + 13 ] = R6;
 		[ cpcbaddr + 14 ] = R7;
 		
+		[physicalSP - 2] = 0;
+		
 		cpid = (cpid + 1) % 32;
 		while(1 == 1)do                             //Searching for a ready process
 			if([READY_LIST + (cpid * 32) + 1] == 1)then
@@ -153,7 +155,7 @@ else
 		R6 = [ nextPCB + 13 ];
 		R7 = [ nextPCB + 14 ];
 		
-		[physicalSP - 2] = 0;
+		
 		ireturn;
 	else
 		if ( sysCallNo == 14) then            //Signal system call
