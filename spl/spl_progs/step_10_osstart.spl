@@ -1,6 +1,6 @@
 //Name : Sooraj Tom, 111501036
 //Date : 20-09-2017
-//Step : 11 OS startup code
+//Step : 10 OS startup code
 
 //loading exception handler
 load (7 , 1); 
@@ -23,7 +23,7 @@ load (19, 13);
 load (20, 14);
 //loading interrupt 6
 load (21, 15);
-load (22	, 16);
+load (22, 16);
 //loading interrupt 7
 load (23, 17); 
 load (24, 18);
@@ -44,7 +44,7 @@ while ( counter <  128) do			// 64 entries, each of size 2 words
 endwhile;
 
 //Initialising memory free list
-counter = 29;
+counter = 26;
 while(counter < 64)do
 	[MEM_LIST + counter] = 0;
 	counter = counter + 1;
@@ -57,26 +57,39 @@ while(counter < 32)do
 	counter = counter + 1;
 endwhile;
 
+alias i S1;
+counter = 448;
+while (counter < 512)do
+	load(25, counter);
+	i = 0;
+	while(i < 512)do
+		[25 * 512 + i] = 0;
+	endwhile;
+	store(25, counter);
+endwhile;
+
+load (6, 20);
+i = 448;
+while(i < 512)do
+	[MEM_LIST + i] = 0;                  //Clearing the disk-free list entries for swap area
+endwhile;
+store(6, 20);
+
 //setting PID 0 in ready-list
 [READY_LIST + 0] = 0;  
-
-//loading INIT code
-load (25, 21);
-load (26, 22);
-load (27, 23);
 
 //setting page table base register
 PTBR = 1024;
 PTLR = 4;
 
 //Adding page table entries
-[PTBR + 0] = 25;
-[PTBR + 1] = "01";
-[PTBR + 2] = 26;
-[PTBR + 3] = "01";
-[PTBR + 4] = 27;
-[PTBR + 5] = "01";
-[PTBR + 6] = 28;  //page for Stack
+[PTBR + 0] = 21;             //Disk page containing the data
+[PTBR + 1] = "00";
+[PTBR + 2] = 22;
+[PTBR + 3] = "00";
+[PTBR + 4] = 23;
+[PTBR + 5] = "00";
+[PTBR + 6] = 25;  //page for Stack
 [PTBR + 7] = "01";
 
 //initialising Per-Process open file table for INIT process

@@ -2,16 +2,40 @@
 alias Cause S5;
 alias VPagenum S6;
 alias Ip_addr S7;
+alias i S8;
+alias freepage S9;
 
-Cause = EFR % 10;		// Gets value of cause field (size 1 char)
-VPagenum = (EFR / 10) % 100;    // Gets value of BadVAddr 
-Ip_addr = (EFR/1000);		//Gets value of IP at the point of exception
+Cause = EFR % 10;	             	// Gets value of cause field (size 1 char)
+VPagenum = (EFR / 10) % 100;        // Gets value of BadVAddr 
+Ip_addr = (EFR/1000);		        //Gets value of IP at the point of exception
 
-print("--Exception--");
-print("Cause");
-print(Cause);
-print("VPagenum");
-print(VPagenum);
-print("Ip_addr");
-print(Ip_addr);
+if (Cause == 0)then
+	if([PTBR + VPagenum*2] == -1)then
+		inline "MOV R0, 10";
+		inline "PUSH R0";
+		inline "JMP 11776";    //Jumping to exit
+	endif;
+	
+	i = 26;
+	freepage = -1;
+	while (i < 64)do
+		if([MEM_LIST + i] == 0)then
+			freepage = i;
+			break;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+else
+	print("Cause");
+	print(Cause);
+	print("VPagenum");
+	print(VPagenum);
+	print("Ip_addr");
+	print(Ip_addr);
+	inline "MOV R0, 10";
+	inline "PUSH R0";
+	inline "JMP 11776";    //Jumping to exit
+	
+endif;
 

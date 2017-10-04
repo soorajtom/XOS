@@ -1,0 +1,109 @@
+//Name : Sooraj Tom, 111501036
+//Date : 30-09-2017
+//Step : 10 Interrupt 5
+alias physicalSP S0;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+
+alias sysCallNo S1;
+sysCallNo = [physicalSP - 1];
+
+if ( sysCallNo == 8) then            //Fork system call
+	alias i S2;
+	alias newpid S3;
+	alias freepage S4;
+	alias j S5;
+	alias k S6;
+	alias pcbaddr S7;
+	alias openc S8;
+	alias fileaddr S9;
+	
+	newpid = -1;
+	i = 0;
+	while(i < 32)do                                 //Searching for a free entry in the process table
+		if([READY_LIST + (i * 32) + 1] == 0)then
+			newpid = i;
+			break;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	if(newpid == -1)then                    //We couldn't find any free slots for PCB
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	pcbaddr = READY_LIST + (newpid * 32);
+	[pcbaddr] = newpid;                   //Setting the PID 
+	
+	i = 26;
+	while(i < 64)do                            //Searching if one free page is present
+		if([MEM_LIST + i] == 0)then
+			break;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	if(i == 64)then                            //A free memory page was not found
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	freepage = i;
+	
+	[MEM_LIST + freepage] = 1;                                    //Setting the memory page as used
+	j = 0;
+	while(j < 512) do
+		[(freepage * 512) + j] = [([PTBR + 6] * 512) + j];        //Copying each word in the page
+		j = j + 1;
+	endwhile; 
+	
+	i = PAGE_TABLE + (newpid * 8);
+	j = 0;
+	while(j < 6)do
+		[i + j] = [PTBR + j];              //copying the page entries of parent process
+		j = j + 1;
+	endwhile;
+	
+	[i + 6] = freepage;                   //Adding the page to per-process page table (stack)
+	[i + 6 + 1] = "01";                   //Setting auxilliary information for page
+	
+	[pcbaddr + 5] = PAGE_TABLE + (newpid * 8);                    //Setting the PTBR in PCB
+	[pcbaddr + 4] = [physicalSP];                    //Setting IP value in PCB
+	[pcbaddr + 3] = SP - 1;                          //Setting SP value in PCB
+	[pcbaddr + 2] = BP;                              //Setting BP value in PCB
+	[pcbaddr + 1] = 1;                               //Setting State as READY
+	[pcbaddr + 6] = PTLR;                            //Setting the PTLR in PCB                             
+	[pcbaddr + 7] = R0;
+	[pcbaddr + 8] = R1;
+	[pcbaddr + 9] = R2;
+	[pcbaddr + 10] = R3;
+	[pcbaddr + 11] = R4;
+	[pcbaddr + 12] = R5;
+	[pcbaddr + 13] = R6;
+	[pcbaddr + 14] = R7;
+	[pcbaddr + 31] = (PAGE_TABLE - PTBR) / 8;   //Setting the parent PID   
+	
+	i = 0;
+	k = 0;
+	j = (PAGE_TABLE - PTBR) / 8;         //now, j contains the PID of the parent process
+	j = READY_LIST + (j * 32) + 15;      //j contains the addr of per-process file table of the calling process
+	while(i < 8)do
+		fileaddr = j + (k * 2);
+		[pcbaddr + 15 + (i * 2)] = [fileaddr];                  //Copying the open file table entry
+		[pcbaddr + 15 + (i * 2) + 1] = [fileaddr + 1];
+		if([fileaddr] > -1)then                                 //There is a file open in that descriptor
+			openc = FILE_TABLE + ([fileaddr] * 2) + 1 ;         //openc is the address of the open counter of file
+			[openc] = [openc] + 1;
+		endif;
+		i = i + 1;
+		k = k + 1;
+	endwhile;
+	
+	[physicalSP - 2] = newpid;                        //Setting the return value for parent process
+	
+	//([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)
+	physicalSP = ([[pcbaddr + 5] + 2 * ((SP - 1) / 512)] * 512) + ((SP - 1) % 512);
+	[physicalSP - 1] = -2;
+endif;
+ireturn;
+

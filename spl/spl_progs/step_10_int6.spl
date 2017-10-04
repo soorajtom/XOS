@@ -1,0 +1,109 @@
+//Name : Sooraj Tom, 111501036
+//Date : 30-09-2017
+//Step : 10 Interrupt 6
+alias physicalSP S0;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+
+alias sysCallNo S1;
+sysCallNo = [physicalSP - 1];
+
+if ( sysCallNo == 9) then            //Exec system call
+	alias Filename S2;
+	alias i S3;
+	alias fatentry S4;
+	alias requiredp S5;
+	alias allocated S6;
+	alias pageno S7;
+	alias j S8;
+	alias sysopft S9;
+	
+	Filename = [physicalSP - 3];
+	i = FAT;
+
+	//Searching if the file with that name exists
+	while(i < (FAT + 512)) do
+		if(Filename == [i]) then
+			break;
+		endif;
+		i = i + 8;
+	endwhile;
+	
+	if (i >= (FAT + 512)) then     //A file in that name does not exist
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	fatentry = i;               		//Now fatentry contains the address of the FAT entry corresponding to the file
+	
+	i = 0;
+	while(i < 3)do
+		j = PTBR + (i * 2);
+		if([j + 1]%10 == "1")then        
+			[MEM_LIST + [j]] = [MEM_LIST + [j]] - 1;     //Decrementing memory free list entry for each valid page
+		else if([j + 1]%10 == "0") && ([j] >= 448)then
+			[DISK_LIST + [j]] = [DISK_LIST + [j]] - 1;   //Decrementing disk free list entry for each invalid page (in swap)
+		endif;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	load(1, [fatentry + 2]);            //Loading the basic block onto scratchpad
+	j = 0;
+	i = 0;
+	while(i < 256)do
+		if([SCRATCHPAD + i] > 0)then
+			[PTBR + j] = [SCRATCHPAD + i];
+			[PTBR + j + 1] = "00";
+			j = j + 2;
+		endif;
+		i = i + 1;
+	endwhile;
+	
+	while(j < 6)do
+		[PTBR + j] = -1;
+		[PTBR + j + 1] = "00";
+		j = j + 2;
+	endwhile;
+	
+	[PTBR + 7] = "01";              //Initialising the auxiliary info for stack
+	
+	i = (PTBR - PAGE_TABLE) / 8;    //Obtaining process id of the calling process
+	i = READY_LIST + (32 * i);      //Obtaining the PCB of current process
+	i = i + 15;                     //Obtaining per-process open file table
+	
+	j = 0;
+	while(j < 16)do                 
+		if([i + j] > -1)then
+			sysopft = [i + j];
+			sysopft = FILE_TABLE + sysopft * 2;
+			if([sysopft + 1] == 1) then           //The file is open only by one process
+				[sysopft + 1] = 0;
+				[sysopft] = -1;
+			else
+				[sysopft + 1] = [sysopft + 1] - 1;     //Decrementing the open count for the file
+			endif;
+		endif;
+		j = j + 1;
+	endwhile;
+	
+	SP = 3 * 512;
+	
+	i = [PTBR + 3 * 2];
+	[i * 512] = 0;
+
+else
+	if(sysCallNo == 11) then            //Getpid system call
+		[physicalSP - 2] = (PTBR - PAGE_TABLE) / 8;
+		ireturn;
+	else
+		if(sysCallNo == 12) then            //Getppid system call
+			alias pcbaddr S3;
+			
+			pcbaddr = ((PTBR - PAGE_TABLE) / 8);       //Now, pcbaddr contains the pid of current process
+			pcbaddr = READY_LIST + pcbaddr * 32;       //Now, pcbaddr has the address to pcb entry corresponding to the process
+			[physicalSP - 2] = [pcbaddr + 31];
+			ireturn;
+		endif;
+	endif;
+endif;
+ireturn;

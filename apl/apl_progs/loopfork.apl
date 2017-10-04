@@ -7,7 +7,7 @@ integer main()
 	i = 0;
 	status = 0;
 	fstatus = 0;
-	while(fstatus != -1)do
+	while(fstatus > -1)do
 		fstatus = Fork();
 		if(fstatus == -2)then
 			status = Exec("infloop.xsm");

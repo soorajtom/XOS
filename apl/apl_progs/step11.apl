@@ -17,8 +17,14 @@ integer main()
 				print("Exec err");
 				Exit();
 			endif;
-		else
-			status = Wait(fstatus);
+		else if(fstatus > -1)then
+				status = Wait(fstatus);
+				if(status == -1) then
+					print("Wait.. err");
+				endif;
+			else
+				print("Fork err");
+			endif;
 		endif;
 	endwhile;
 	print("Main end");
