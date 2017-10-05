@@ -3,10 +3,12 @@
 //Step : 10 Interrupt 7
 
 alias physicalSP S0;
+breakpoint;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
+alias nextPCB S9;
 
 if ( sysCallNo == 10) then            //Exit system call
 	alias i S2;
@@ -78,24 +80,8 @@ if ( sysCallNo == 10) then            //Exit system call
 	
 	/////////////Deploying the next ready process//////////////////
 	
-	alias nextPCB S7;
 	nextPCB = READY_LIST + (nextready * 32);
-	[ nextPCB + 1 ] = 2;                                //Set STATE Value to RUNNING
-	BP =  [ nextPCB + 2 ];
-	SP =  [ nextPCB + 3 ] + 1;
-	PTBR = [ nextPCB + 5 ];
-	physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
-	[ physicalSP ] = [ nextPCB + 4 ];   //Storing IP value to the top of stack
-	PTLR = [ nextPCB + 6 ];
-	R0 = [ nextPCB + 7 ];
-	R1 = [ nextPCB + 8 ];
-	R2 = [ nextPCB + 9 ];
-	R3 = [ nextPCB + 10 ];
-	R4 = [ nextPCB + 11 ];
-	R5 = [ nextPCB + 12 ];
-	R6 = [ nextPCB + 13 ];
-	R7 = [ nextPCB + 14 ];	
-	ireturn;
+	
 else
 	if ( sysCallNo == 13) then            //Wait system call
 		alias WaitingPID S2;
@@ -152,23 +138,6 @@ else
 		
 		[physicalSP - 2] = 0;
 		
-		[ nextPCB + 1 ] = 2;  //Set STATE Value to RUNNING
-		BP =  [ nextPCB + 2 ];
-		SP =  [ nextPCB + 3 ] + 1;
-		PTBR = [ nextPCB + 5 ];
-		physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
-		[ physicalSP ] = [ nextPCB + 4 ];   //Storing IP value to the top of stack
-		PTLR = [ nextPCB + 6 ];
-		R0 = [ nextPCB + 7 ];
-		R1 = [ nextPCB + 8 ];
-		R2 = [ nextPCB + 9 ];
-		R3 = [ nextPCB + 10 ];
-		R4 = [ nextPCB + 11 ];
-		R5 = [ nextPCB + 12 ];
-		R6 = [ nextPCB + 13 ];
-		R7 = [ nextPCB + 14 ];
-		
-		ireturn;
 	else
 		if ( sysCallNo == 14) then            //Signal system call
 			alias i S2;
@@ -187,3 +156,23 @@ else
 		endif;
 	endif;
 endif;
+
+[ nextPCB + 1 ] = 2;  //Set STATE Value to RUNNING
+BP =  [ nextPCB + 2 ];
+SP =  [ nextPCB + 3 ] + 1;
+PTBR = [ nextPCB + 5 ];
+breakpoint;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+breakpoint;
+[ physicalSP ] = [ nextPCB + 4 ];   //Storing IP value to the top of stack
+PTLR = [ nextPCB + 6 ];
+R0 = [ nextPCB + 7 ];
+R1 = [ nextPCB + 8 ];
+R2 = [ nextPCB + 9 ];
+R3 = [ nextPCB + 10 ];
+R4 = [ nextPCB + 11 ];
+R5 = [ nextPCB + 12 ];
+R6 = [ nextPCB + 13 ];
+R7 = [ nextPCB + 14 ];
+
+ireturn;

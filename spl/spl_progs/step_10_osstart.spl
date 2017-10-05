@@ -58,20 +58,12 @@ while(counter < 32)do
 endwhile;
 
 alias i S1;
-counter = 448;
-while (counter < 512)do
-	load(25, counter);
-	i = 0;
-	while(i < 512)do
-		[25 * 512 + i] = 0;
-	endwhile;
-	store(25, counter);
-endwhile;
 
 load (6, 20);
 i = 448;
 while(i < 512)do
 	[MEM_LIST + i] = 0;                  //Clearing the disk-free list entries for swap area
+	i = i + 1;
 endwhile;
 store(6, 20);
 

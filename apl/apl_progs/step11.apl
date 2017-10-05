@@ -11,6 +11,7 @@ integer main()
 		read(comm);
 		if(comm == "exit")then break; endif;
 		fstatus = Fork();
+		print("Forked");
 		if(fstatus == -2)then
 			status = Exec(comm);
 			if(status == -1)then

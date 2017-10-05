@@ -32,9 +32,6 @@ if ( sysCallNo == 8) then            //Fork system call
 		ireturn;
 	endif;
 	
-	pcbaddr = READY_LIST + (newpid * 32);
-	[pcbaddr] = newpid;                   //Setting the PID 
-	
 	i = 26;
 	while(i < 64)do                            //Searching if one free page is present
 		if([MEM_LIST + i] == 0)then
@@ -48,6 +45,8 @@ if ( sysCallNo == 8) then            //Fork system call
 		ireturn;
 	endif;
 	
+	pcbaddr = READY_LIST + (newpid * 32);
+	[pcbaddr] = newpid;                   //Setting the PID 
 	freepage = i;
 	
 	[MEM_LIST + freepage] = 1;                                    //Setting the memory page as used
@@ -60,7 +59,7 @@ if ( sysCallNo == 8) then            //Fork system call
 	i = PAGE_TABLE + (newpid * 8);
 	j = 0;
 	while(j < 6)do
-		[i + j] = [PTBR + j];              //copying the page entries of parent process
+		[i + j] = [PTBR + j];              //copying the page table entries of parent process
 		j = j + 1;
 	endwhile;
 	
@@ -85,7 +84,7 @@ if ( sysCallNo == 8) then            //Fork system call
 	
 	i = 0;
 	k = 0;
-	j = (PAGE_TABLE - PTBR) / 8;         //now, j contains the PID of the parent process
+	j = (PTBR - PAGE_TABLE) / 8;         //now, j contains the PID of the parent process
 	j = READY_LIST + (j * 32) + 15;      //j contains the addr of per-process file table of the calling process
 	while(i < 8)do
 		fileaddr = j + (k * 2);
@@ -101,7 +100,6 @@ if ( sysCallNo == 8) then            //Fork system call
 	
 	[physicalSP - 2] = newpid;                        //Setting the return value for parent process
 	
-	//([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)
 	physicalSP = ([[pcbaddr + 5] + 2 * ((SP - 1) / 512)] * 512) + ((SP - 1) % 512);
 	[physicalSP - 1] = -2;
 endif;
