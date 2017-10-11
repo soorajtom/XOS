@@ -3,9 +3,8 @@ integer main()
 	integer i;
 	integer status;
 	i = 0;
+	print(Getpid());
 	status = Signal();
-	while(i >= 0)do
-		i = i + 1;
-	endwhile;
+	status = Wait(0);
 	return 0;
 }

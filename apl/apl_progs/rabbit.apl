@@ -14,7 +14,6 @@ integer main()
 				break;
 			endif;
 		else if(fstatus > -1)then
-				print(fstatus);
 				status = Wait(fstatus);
 				if(status == -1) then
 					print("Wait.. err");

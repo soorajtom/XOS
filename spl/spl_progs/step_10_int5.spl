@@ -16,8 +16,11 @@ if ( sysCallNo == 8) then            //Fork system call
 	alias pcbaddr S7;
 	alias openc S8;
 	alias fileaddr S9;
+	alias currentp S10;
+	alias phypage S11;
 	
 	newpid = -1;
+	freepage = -1;
 	i = 0;
 	while(i < 32)do                                 //Searching for a free entry in the process table
 		if([READY_LIST + (i * 32) + 1] == 0)then
@@ -35,19 +38,59 @@ if ( sysCallNo == 8) then            //Fork system call
 	i = 26;
 	while(i < 64)do                            //Searching if one free page is present
 		if([MEM_LIST + i] == 0)then
+			freepage = i;
 			break;
 		endif;
 		i = i + 1;
 	endwhile;
 	
-	if(i == 64)then                            //A free memory page was not found
-		[physicalSP - 2] = -1;
-		ireturn;
+	currentp = (PTBR - PAGE_TABLE) / 8;
+	
+	if(freepage == -1)then                            //A free memory page was not found
+		j = 0;
+		i = ((currentp + 1) * 8) % 128;
+		while(j < 256)do
+			if((i + 2)%8 != 0)then                          //ignoring stack pages
+				if(([PAGE_TABLE + i + 1] == "01") && ([MEM_LIST + [PAGE_TABLE + i]] == 1))then    //reference bit is 0
+					phypage = 448;
+					while(phypage < 512)do
+						if([DISK_LIST + phypage] == 0)then
+							break;
+						endif;
+						phypage = phypage + 1;
+					endwhile;
+					if(phypage == 512)then
+						inline "MOV R0, 10";
+						inline "PUSH R0";
+						inline "PUSH R0";
+						inline "JMP 11776";    //Jumping to exit
+					endif;
+					store([PAGE_TABLE + i], phypage);                    //Storing the page into disk
+				
+					[DISK_LIST + phypage] = [DISK_LIST + phypage] + 1;
+				
+					freepage = [PAGE_TABLE + i];
+				
+					[PAGE_TABLE + i] = phypage;                        //Setting the page table entry for victim page
+					[PAGE_TABLE + i + 1] = "00";
+				
+					[MEM_LIST + freepage] = [MEM_LIST + freepage] - 1;   
+				
+					break;					
+				else
+					if ([PAGE_TABLE + i + 1] == "11") then
+						[PAGE_TABLE + i + 1] = "01";  ////////////////////////////-----------------
+					endif;
+				endif;
+			endif;
+			i = (i + 2) % 256;                                //32 processes * 4 pages per page * 2
+			j = j + 1;
+		endwhile;
 	endif;
+	
 	
 	pcbaddr = READY_LIST + (newpid * 32);
 	[pcbaddr] = newpid;                   //Setting the PID 
-	freepage = i;
 	
 	[MEM_LIST + freepage] = 1;                                    //Setting the memory page as used
 	j = 0;

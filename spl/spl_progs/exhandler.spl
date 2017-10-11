@@ -33,12 +33,13 @@ if (Cause == 0)then
 	
 	currentp = (PTBR - PAGE_TABLE) / 8;
 	
+	
 	counter = 0;
 	if(freepage == -1)then
-		i = (currentp + 1) * 8;
-		while(counter < 128)do
-//			if((i + 2)%8 != 0)then                          //ignoring stack pages
-				if([PAGE_TABLE + i + 1] == "01")then    //reference bit is 0
+		i = ((currentp + 1) * 8) % 128;
+		while(counter < 256)do
+			if((i + 2)%8 != 0)then                          //ignoring stack pages
+				if(([PAGE_TABLE + i + 1] == "01") && ([MEM_LIST + [PAGE_TABLE + i]] == 1))then    //reference bit is 0
 					phypage = 448;
 					while(phypage < 512)do
 						if([DISK_LIST + phypage] == 0)then
@@ -56,28 +57,27 @@ if (Cause == 0)then
 					
 					[DISK_LIST + phypage] = [DISK_LIST + phypage] + 1;
 					
-					freepage = [PAGE_TABLE + (i * 2)];
+					freepage = [PAGE_TABLE + i];
 					
 					[PAGE_TABLE + i] = phypage;                        //Setting the page table entry for victim page
 					[PAGE_TABLE + i + 1] = "00";
 					
 					[MEM_LIST + freepage] = [MEM_LIST + freepage] - 1;   ////////////////-------------------------------
-					print("swapped");
-					print(freepage);
+					
 					break;					
 				else
 					if ([PAGE_TABLE + i + 1] == "11") then
 						[PAGE_TABLE + i + 1] = "01";  ////////////////////////////-----------------
 					endif;
 				endif;
-//			endif;
-			i = (i + 2) % 128;                                //32 processes * 4 pages per page
+			endif;
+			i = (i + 2) % 256;                                //32 processes * 4 pages per page * 2
 			counter = counter + 1;
 		endwhile;
 	endif;
 	
-	load (freepage, [PTBR + VPagenum*2]);                      //loading the page from disk to memory
 	
+	load (freepage, [PTBR + VPagenum*2]);                      //loading the page from disk to memory
 	[MEM_LIST + freepage] = [MEM_LIST + freepage] + 1;
 	
 	
