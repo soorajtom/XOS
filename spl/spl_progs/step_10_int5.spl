@@ -58,8 +58,17 @@ if ( sysCallNo == 8) then            //Fork system call
 	
 	i = PAGE_TABLE + (newpid * 8);
 	j = 0;
-	while(j < 6)do
-		[i + j] = [PTBR + j];              //copying the page table entries of parent process
+	while(j < 3)do
+		[i + j*2] = [PTBR + j*2];              //copying the page table entries of parent process
+		[i + j*2 + 1] = [PTBR + j*2 + 1];
+		if([i + j*2 + 1]%10 == 1)then
+			[MEM_LIST + [i + j*2] ] = [MEM_LIST + [i + j*2] ] + 1;
+		else
+			if([PTBR + j*2 + 1] >= 448)then          //the block is in the swap area
+				[DISK_LIST + [PTBR + j*2 + 1]] = [DISK_LIST + [PTBR + j*2 + 1]] + 1; 
+			endif;
+		endif;
+		
 		j = j + 1;
 	endwhile;
 	

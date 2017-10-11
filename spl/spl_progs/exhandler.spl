@@ -6,12 +6,14 @@ alias i S8;
 alias freepage S9;
 alias currentp S10;
 alias phypage S11;
+alias counter S12;
 
 Cause = EFR % 10;	             	// Gets value of cause field (size 1 char)
 VPagenum = (EFR / 10) % 100;        // Gets value of BadVAddr 
 Ip_addr = (EFR/1000);		        //Gets value of IP at the point of exception
 
 if (Cause == 0)then
+
 	if([PTBR + VPagenum*2 + 1] == -1)then
 		inline "MOV R0, 10";
 		inline "PUSH R0";
@@ -31,11 +33,12 @@ if (Cause == 0)then
 	
 	currentp = (PTBR - PAGE_TABLE) / 8;
 	
+	counter = 0;
 	if(freepage == -1)then
-		i = PTBR + 4;
-		while(i < PTBR)do
-			if((i + 1)%4 != 0)then                          //ignoring stack pages
-				if([PAGE_TABLE + (i * 2) + 1] == "01")then    //reference bit is 0
+		i = (currentp + 1) * 8;
+		while(counter < 128)do
+//			if((i + 2)%8 != 0)then                          //ignoring stack pages
+				if([PAGE_TABLE + i + 1] == "01")then    //reference bit is 0
 					phypage = 448;
 					while(phypage < 512)do
 						if([DISK_LIST + phypage] == 0)then
@@ -49,25 +52,34 @@ if (Cause == 0)then
 						inline "PUSH R0";
 						inline "JMP 11776";    //Jumping to exit
 					endif;
-					store([PAGE_TABLE + (i * 2)], phypage);                    //Storing the page into disk
+					store([PAGE_TABLE + i], phypage);                    //Storing the page into disk
 					
 					[DISK_LIST + phypage] = [DISK_LIST + phypage] + 1;
 					
-					[PAGE_TABLE + (i * 2)] = phypage;                        //Setting the page table entry for victim page
-					[PAGE_TABLE + (i * 2) + 1] = "00";
-					
 					freepage = [PAGE_TABLE + (i * 2)];
+					
+					[PAGE_TABLE + i] = phypage;                        //Setting the page table entry for victim page
+					[PAGE_TABLE + i + 1] = "00";
+					
+					[MEM_LIST + freepage] = [MEM_LIST + freepage] - 1;   ////////////////-------------------------------
+					print("swapped");
+					print(freepage);
 					break;					
 				else
-					[PAGE_TABLE + (i * 2) + 1] = "01";  ////////////////////////////-----------------
+					if ([PAGE_TABLE + i + 1] == "11") then
+						[PAGE_TABLE + i + 1] = "01";  ////////////////////////////-----------------
+					endif;
 				endif;
-			endif;
-			i = (i + 1) % 128;                                //32 processes * 4 pages per page
+//			endif;
+			i = (i + 2) % 128;                                //32 processes * 4 pages per page
+			counter = counter + 1;
 		endwhile;
 	endif;
 	
 	load (freepage, [PTBR + VPagenum*2]);                      //loading the page from disk to memory
+	
 	[MEM_LIST + freepage] = [MEM_LIST + freepage] + 1;
+	
 	
 	if(([PTBR + VPagenum*2] >= 448) && ([PTBR + VPagenum*2] < 512))then
 		[DISK_LIST + [PTBR + VPagenum*2]] = [DISK_LIST + [PTBR + VPagenum*2]] - 1;
@@ -78,6 +90,7 @@ if (Cause == 0)then
 	
 	SP = SP + 1;
 	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = Ip_addr;
+	
 	ireturn;
 	
 else
@@ -87,10 +100,16 @@ else
 	print(VPagenum);
 	print("Ip_addr");
 	print(Ip_addr);
-	inline "MOV R0, 10";
-	inline "PUSH R0";
-	inline "PUSH R0";
+	//inline "MOV R0, 10";
+	//inline "PUSH R0";
+	//inline "PUSH R0";
 	print("Error3");      //////////////////////////////////////----------------------------------
+	breakpoint;
+	SP = SP + 1;
+	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = 10;
+	SP = SP + 2;
+	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = Ip_addr;
+	
 	inline "JMP 11776";    //Jumping to exit
 	ireturn;
 endif;

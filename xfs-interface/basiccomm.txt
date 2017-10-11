@@ -16,5 +16,6 @@ load --exec $apldir/infloop.xsm
 load --exec $apldir/signal.xsm
 load --exec $apldir/getpid.xsm
 load --exec $apldir/getppid.xsm
+load --init $apldir/rabbit.xsm
 exit
 

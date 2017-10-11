@@ -3,12 +3,11 @@
 //Step : 10 Interrupt 7
 
 alias physicalSP S0;
-breakpoint;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
-alias nextPCB S9;
+alias nextPCB S8;
 
 if ( sysCallNo == 10) then            //Exit system call
 	alias i S2;
@@ -88,7 +87,6 @@ else
 		alias wpcbaddr S3;
 		alias cpcbaddr S4;
 		alias cpid S5;
-		alias nextPCB S6;
 		alias count S7;
 		WaitingPID = [physicalSP - 3];
 			
@@ -161,9 +159,7 @@ endif;
 BP =  [ nextPCB + 2 ];
 SP =  [ nextPCB + 3 ] + 1;
 PTBR = [ nextPCB + 5 ];
-breakpoint;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
-breakpoint;
 [ physicalSP ] = [ nextPCB + 4 ];   //Storing IP value to the top of stack
 PTLR = [ nextPCB + 6 ];
 R0 = [ nextPCB + 7 ];
@@ -174,5 +170,4 @@ R4 = [ nextPCB + 11 ];
 R5 = [ nextPCB + 12 ];
 R6 = [ nextPCB + 13 ];
 R7 = [ nextPCB + 14 ];
-
 ireturn;

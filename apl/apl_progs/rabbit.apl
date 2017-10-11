@@ -4,26 +4,24 @@ decl
 enddecl
 integer main()
 {
-	print("Main start");
-	comm = "exit";
+	print("Rabbitstart");
 	while(1 == 1)do
-		print("Command:");
-		read(comm);
-		if(comm == "exit")then break; endif;
 		fstatus = Fork();
 		if(fstatus == -2)then
-			status = Exec(comm);
+			status = Exec("signal.xsm");
 			if(status == -1)then
 				print("Exec err");
-				Exit();
+				break;
 			endif;
 		else if(fstatus > -1)then
+				print(fstatus);
 				status = Wait(fstatus);
 				if(status == -1) then
 					print("Wait.. err");
 				endif;
 			else
 				print("Fork err");
+				break;
 			endif;
 		endif;
 	endwhile;
