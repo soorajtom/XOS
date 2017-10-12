@@ -4,24 +4,20 @@ decl
 enddecl
 integer main()
 {
-	print("Rabbitstart");
+	print("Forkerstart");
 	while(1 == 1)do
 		fstatus = Fork();
 		if(fstatus == -2)then
-			status = Exec("signal.xsm");
-			if(status == -1)then
-				print("Exec err");
-				break;
-			endif;
+			print(Getpid());
 		else if(fstatus > -1)then
-				status = Wait(fstatus);
+				status = Wait(0);
 			else
 				print("Fork err");
 				break;
 			endif;
 		endif;
 	endwhile;
-	print("Rabbitend");
+	print("Forkerend");
 	return 0;
 }
 	

@@ -8,7 +8,7 @@ PUSH R0
 JMP 00016
 PUSH BP
 MOV BP,SP
-MOV R0, "Main start"
+MOV R0, "Shell start"
 OUT R0
 MOV R0, 1539
 MOV R1, "exit"
@@ -104,7 +104,7 @@ JMP 00210
 MOV R0, "Fork err"
 OUT R0
 JMP 30
-MOV R0, "Main end"
+MOV R0, "Shell end"
 OUT R0
 MOV R0, 10
 PUSH R0

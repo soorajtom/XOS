@@ -86,7 +86,7 @@ MOV R0, "Fork err"
 OUT R0
 JMP 00176
 JMP 24
-MOV R0, "Main end"
+MOV R0, "Rabbitend"
 OUT R0
 MOV R0, 10
 PUSH R0

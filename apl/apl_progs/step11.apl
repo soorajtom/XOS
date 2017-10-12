@@ -4,7 +4,7 @@ decl
 enddecl
 integer main()
 {
-	print("Main start");
+	print("Shell start");
 	comm = "exit";
 	while(1 == 1)do
 		print("Command:");
@@ -27,7 +27,7 @@ integer main()
 			endif;
 		endif;
 	endwhile;
-	print("Main end");
+	print("Shell end");
 	return 0;
 }
 	

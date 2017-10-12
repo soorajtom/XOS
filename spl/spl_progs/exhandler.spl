@@ -62,12 +62,14 @@ if (Cause == 0)then
 					[PAGE_TABLE + i] = phypage;                        //Setting the page table entry for victim page
 					[PAGE_TABLE + i + 1] = "00";
 					
-					[MEM_LIST + freepage] = [MEM_LIST + freepage] - 1;   ////////////////-------------------------------
+					[MEM_LIST + freepage] = [MEM_LIST + freepage] - 1;   
+					
+					store(6, 20);                                      //Storing disk-free list back into disk
 					
 					break;					
 				else
 					if ([PAGE_TABLE + i + 1] == "11") then
-						[PAGE_TABLE + i + 1] = "01";  ////////////////////////////-----------------
+						[PAGE_TABLE + i + 1] = "01";  
 					endif;
 				endif;
 			endif;
@@ -94,17 +96,23 @@ if (Cause == 0)then
 	ireturn;
 	
 else
-	print("Cause");
-	print(Cause);
+	print("Cause:");
+	if(Cause == 1)then
+		print("IllegalInstrn");
+	endif;
+	if(Cause == 2)then
+		print("IllegalMem-acc");
+	endif;
+	if(Cause == 3)then
+		print("ArithmeticExc");
+	endif;
+	if(Cause == 4)then
+		print("IllegalOperand");
+	endif;
 	print("VPagenum");
 	print(VPagenum);
 	print("Ip_addr");
 	print(Ip_addr);
-	//inline "MOV R0, 10";
-	//inline "PUSH R0";
-	//inline "PUSH R0";
-	print("Error3");      //////////////////////////////////////----------------------------------
-	breakpoint;
 	SP = SP + 1;
 	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = 10;
 	SP = SP + 2;

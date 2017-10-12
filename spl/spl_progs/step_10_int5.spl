@@ -59,11 +59,9 @@ if ( sysCallNo == 8) then            //Fork system call
 						endif;
 						phypage = phypage + 1;
 					endwhile;
-					if(phypage == 512)then
-						inline "MOV R0, 10";
-						inline "PUSH R0";
-						inline "PUSH R0";
-						inline "JMP 11776";    //Jumping to exit
+					if(phypage == 512)then               //we couldn't find a swap page slot
+						[physicalSP - 2] = -1;
+						ireturn;
 					endif;
 					store([PAGE_TABLE + i], phypage);                    //Storing the page into disk
 				
@@ -75,11 +73,13 @@ if ( sysCallNo == 8) then            //Fork system call
 					[PAGE_TABLE + i + 1] = "00";
 				
 					[MEM_LIST + freepage] = [MEM_LIST + freepage] - 1;   
-				
+					
+					store(6, 20);                                      //Storing disk-free list back into disk
+					
 					break;					
 				else
 					if ([PAGE_TABLE + i + 1] == "11") then
-						[PAGE_TABLE + i + 1] = "01";  ////////////////////////////-----------------
+						[PAGE_TABLE + i + 1] = "01";  
 					endif;
 				endif;
 			endif;

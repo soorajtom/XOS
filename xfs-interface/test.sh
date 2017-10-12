@@ -11,6 +11,6 @@ $spldir/../spl --int=5 $spldir/step_10_int5.spl
 $spldir/../spl --int=6 $spldir/step_10_int6.spl
 $spldir/../spl --int=7 $spldir/step_10_int7.spl
 $HOME/myxos/xfs-interface/xfs-interface < $HOME/myxos/xfs-interface/basiccomm.txt
-$HOME/myxos/xsm/xsm --debug 
+$HOME/myxos/xsm/xsm --debug $1
 #echo -e "copy 19 28 new.txt\n exit\n" | $HOME/myxos/xfs-interface/xfs-interface
 
