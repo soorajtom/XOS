@@ -10,7 +10,7 @@ integer main()
 		if(fstatus == -2)then
 			status = Exec("signal.xsm");
 			if(status == -1)then
-				print("Exec err");
+				print("Exec error");
 				break;
 			endif;
 		else if(fstatus > -1)then

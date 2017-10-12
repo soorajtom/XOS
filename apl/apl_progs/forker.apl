@@ -9,12 +9,13 @@ integer main()
 		fstatus = Fork();
 		if(fstatus == -2)then
 			print(Getpid());
-		else if(fstatus > -1)then
-				status = Wait(0);
+		else 
+			if(fstatus > -1)then
+				status = Wait(fstatus);
 			else
-				print("Fork err");
-				break;
+				print("Forker err");
 			endif;
+			break;
 		endif;
 	endwhile;
 	print("Forkerend");

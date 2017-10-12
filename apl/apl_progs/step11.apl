@@ -10,6 +10,8 @@ integer main()
 		print("Command:");
 		read(comm);
 		if(comm == "exit")then break; endif;
+		if(comm == "signal")then status = Signal(); continue;endif;
+		if(comm == "breakpoint")then breakpoint; continue;endif;
 		fstatus = Fork();
 		if(fstatus == -2)then
 			status = Exec(comm);
@@ -19,9 +21,6 @@ integer main()
 			endif;
 		else if(fstatus > -1)then
 				status = Wait(fstatus);
-				if(status == -1) then
-					print("Wait.. err");
-				endif;
 			else
 				print("Fork err");
 			endif;

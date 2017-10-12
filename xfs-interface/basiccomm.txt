@@ -18,5 +18,8 @@ load --exec $apldir/getpid.xsm
 load --exec $apldir/getppid.xsm
 load --exec $apldir/rabbit.xsm
 load --exec $apldir/forker.xsm
+load --exec $apldir/exmake.xsm
+load --exec $apldir/sample.xsm
+load --exec $apldir/fileman.xsm
 exit
 

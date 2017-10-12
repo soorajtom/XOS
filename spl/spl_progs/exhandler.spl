@@ -1,3 +1,6 @@
+//Name : Sooraj Tom, 111501036
+//Date : 05-10-2017
+//Step : 10 Exception handler
 
 alias Cause S5;
 alias VPagenum S6;
@@ -15,9 +18,10 @@ Ip_addr = (EFR/1000);		        //Gets value of IP at the point of exception
 if (Cause == 0)then
 
 	if([PTBR + VPagenum*2 + 1] == -1)then
-		inline "MOV R0, 10";
-		inline "PUSH R0";
-		inline "PUSH R0";
+		SP = SP + 1;
+		[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = 10;
+		SP = SP + 2;
+		[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = Ip_addr;
 		inline "JMP 11776";    //Jumping to exit
 	endif;
 	
@@ -48,9 +52,10 @@ if (Cause == 0)then
 						phypage = phypage + 1;
 					endwhile;
 					if(phypage == 512)then
-						inline "MOV R0, 10";
-						inline "PUSH R0";
-						inline "PUSH R0";
+						SP = SP + 2;
+						[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = 10;
+						SP = SP + 1;
+						[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = Ip_addr;
 						inline "JMP 11776";    //Jumping to exit
 					endif;
 					store([PAGE_TABLE + i], phypage);                    //Storing the page into disk
@@ -113,11 +118,10 @@ else
 	print(VPagenum);
 	print("Ip_addr");
 	print(Ip_addr);
-	SP = SP + 1;
-	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = 10;
 	SP = SP + 2;
+	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = 10;
+	SP = SP + 1;
 	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512)] = Ip_addr;
-	
 	inline "JMP 11776";    //Jumping to exit
 	ireturn;
 endif;
