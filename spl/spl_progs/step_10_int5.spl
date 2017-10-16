@@ -88,6 +88,11 @@ if ( sysCallNo == 8) then            //Fork system call
 		endwhile;
 	endif;
 	
+	if(freepage == -1)then
+		SP = SP + 3;
+		[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512) - 1] = 10;
+		inline "JMP 11776";    //Jumping to exit
+	endif;
 	
 	pcbaddr = READY_LIST + (newpid * 32);
 	[pcbaddr] = newpid;                   //Setting the PID 

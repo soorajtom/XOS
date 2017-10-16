@@ -44,7 +44,11 @@ while ( counter <  128) do			// 64 entries, each of size 2 words
 endwhile;
 
 //Initialising memory free list
-counter = 26;
+counter = 0;
+while(counter < 26)do
+	[MEM_LIST + counter] = 1;
+	counter = counter + 1;
+endwhile;
 while(counter < 64)do
 	[MEM_LIST + counter] = 0;
 	counter = counter + 1;

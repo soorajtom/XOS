@@ -21,5 +21,7 @@ load --exec $apldir/forker.xsm
 load --exec $apldir/exmake.xsm
 load --exec $apldir/sample.xsm
 load --exec $apldir/fileman.xsm
+load --exec $apldir/bigprog.xsm
+load --exec $apldir/trap.xsm
 exit
 
