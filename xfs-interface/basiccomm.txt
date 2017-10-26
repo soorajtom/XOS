@@ -23,5 +23,7 @@ load --exec $apldir/sample.xsm
 load --exec $apldir/fileman.xsm
 load --exec $apldir/bigprog.xsm
 load --exec $apldir/trap.xsm
+load --exec $apldir/test.xsm
+load --exec $apldir/tst.xsm
 exit
 

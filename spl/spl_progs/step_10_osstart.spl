@@ -63,7 +63,7 @@ endwhile;
 
 alias i S1;
 
-load (6, 20);
+load (6, 20);                            //loading disk free list
 i = 448;
 while(i < 512)do
 	[MEM_LIST + i] = 0;                  //Clearing the disk-free list entries for swap area

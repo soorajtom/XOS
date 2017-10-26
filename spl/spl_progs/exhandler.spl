@@ -18,12 +18,12 @@ Ip_addr = (EFR/1000);		        //Gets value of IP at the point of exception
 if (Cause == 0)then
 
 	if([PTBR + VPagenum*2 + 1] == -1)then
-		SP = SP + 3;
+		SP = SP + 2;
 		[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512) - 1] = 10;
 		inline "JMP 11776";    //Jumping to exit
 	endif;
 	
-	i = 26;
+	i = 25;
 	freepage = -1;
 	while (i < 64)do
 		if([MEM_LIST + i] == 0)then
@@ -50,7 +50,7 @@ if (Cause == 0)then
 						phypage = phypage + 1;
 					endwhile;
 					if(phypage == 512)then
-						SP = SP + 3;
+						SP = SP + 2;
 						[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512) - 1] = 10;
 						inline "JMP 11776";    //Jumping to exit
 					endif;
@@ -80,8 +80,9 @@ if (Cause == 0)then
 	endif;
 	
 	if(freepage == -1)then
-		SP = SP + 3;
+		SP = SP + 2;
 		[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512) - 1] = 10;
+		print("ExNomoreSwitches");
 		inline "JMP 11776";    //Jumping to exit
 	endif;
 	
@@ -119,7 +120,8 @@ else
 	print(VPagenum);
 	print("Ip_addr");
 	print(Ip_addr);
-	SP = SP + 3;
+	breakpoint;
+	SP = SP + 2;
 	[([PTBR + 2 * (SP / 512)] * 512) + (SP % 512) - 1] = 10;
 	inline "JMP 11776";    //Jumping to exit
 	ireturn;
